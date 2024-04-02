@@ -8,6 +8,7 @@ app = create_app(os.getenv("TRITON_CONFIG", "config.yaml"))
 
 @app.cli.command("dummy-data-board")
 def dummy_data_board():
+    """Dummy Data Insert"""
     from triton.models import Board
     from sqlalchemy import func
 
@@ -23,3 +24,10 @@ def dummy_data_board():
         db.session.add(record)
 
     db.session.commit()
+
+
+@app.cli.command("init-db")
+def init_db():
+    """Initialize Database"""
+    import triton.models
+    db.create_all()
