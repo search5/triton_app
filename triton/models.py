@@ -1,3 +1,4 @@
+from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import inspect
@@ -44,4 +45,3 @@ class Member(Base, UserMixin):
     @property
     def is_authenticated(self):
         return True
-
