@@ -1,0 +1,153 @@
+{% extends "base.jinja2" %}
+
+{% block container %}
+<div class="col-lg-12 px-0">
+    <table class="table">
+        <tr>
+            <th>제목</th>
+            <td colspan="5" class="subject">{{ record.subject }}</td>
+        </tr>
+        <tr>
+            <th>작성자</th>
+            <td class="writer_name">{{ record.writer_name }}</td>
+            <th>작성일</th>
+            <td class="write_date">{{ record.modify_date }}</td>
+            <th>조회수</th>
+            <td class="hit">{{ record.hit }}</td>
+        </tr>
+        <tr>
+            <td colspan="6" style="height: 500px;overflow-wrap: anywhere;" class="content">{{ record.content }}</td>
+        </tr>
+    </table>
+    {% if current_user.is_anonymous %}
+    <a href="#" onclick="article_delete()" class="btn btn-danger delete">삭제</a>
+    {% else %}
+    <a href="#" onclick="article_login_delete()" class="btn btn-danger delete">삭제</a>
+    {% endif %}
+    <a href="/board/{{ record.seq }}/modify" class="btn btn-warning modify">수정</a>
+
+    <!-- 게시물 댓글 목록 표시 -->
+    <hr>
+    <div class="p-1 mb-1 bg-secondary text-white">게시물 댓글</div>
+    <div class="container-fluid">
+        <form id="form_comment" method="post" action="/board/{{ record.seq }}/comments">
+            {% if current_user.is_anonymous %}
+            <div class="row mb-2">
+                <div class="col-4">
+                    <label for="comment_writer_name" class="form-label">작성자명</label>
+                    <input type="text" class="form-control" id="comment_writer_name" name="writer_name" placeholder="댓글 작성자명을 입력하세요">
+                </div>
+                <div class="col-8">
+                    <label for="comment_password" class="form-label">비밀번호</label>
+                    <input type="password" class="form-control" id="comment_password" name="password" placeholder="댓글의 비밀번호를 입력하세요">
+                </div>
+            </div>
+            {% endif %}
+            <div class="row mb-1">
+                <div class="col">
+                    <textarea class="form-control" rows="4" name="content"></textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-secondary save">댓글 저장</button>
+        </form>
+        <hr>
+        <div id="comments">
+            <form v-for="comment in comments" class="mb-2 modify_form_comment" :id="'modify_form_comment_' + comment.seq">
+                <div class="row mb-2">
+                    <div class="col-4">
+                        <label class="form-label border">작성자명</label>
+                        <input type="text" :readonly="!comment.editable" :class="{'form-control-plaintext': !comment.editable, 'form-control': comment.editable}" class="border" name="writer" v-model="comment.writer_name">
+                    </div>
+                    <div class="col-8" v-if="comment.editable && comment.user_id == null">
+                        <label class="form-label border">비밀번호</label>
+                        <input type="password" class="form-control" name="password" placeholder="댓글의 비밀번호를 입력하세요" v-model="comment.password">
+                    </div>
+                </div>
+                <div class="row mb-1">
+                    <div class="col">
+                        <textarea :readonly="comment.editable === false"  :class="{'form-control-plaintext': !comment.editable, 'form-control': comment.editable}" class="border" rows="4" name="content" v-model="comment.content"></textarea>
+                    </div>
+                </div>
+                <button class="btn btn-warning" v-if="!comment.editable" @click.prevent="comment.editable = true">댓글 수정 하기</button>
+                <button class="btn btn-success" v-if="comment.editable" @click.prevent="comment.editable = false">댓글 수정 취소</button>
+                <button class="btn btn-primary save" v-if="comment.editable" @click.prevent="modify_comment(comment)">저장하기</button>
+                <button class="btn btn-danger comment_delete" v-if="!comment.editable" @click.prevent="delete_comment(comment)">삭제하기</button>
+                <hr>
+            </form>
+        </div>
+    </div>
+    <!-- // 게시물 댓글 목록 푝시 -->
+
+    <script>
+    function article_delete() {
+        var article_password = prompt("정말 삭제하시겠습니까?\n삭제하시려면 게시물의 비밀번호를 입력해주세요")
+        
+        if (article_password.trim().length > 0) {
+            axios.delete('/board/{{ record.seq }}', {
+                data: {
+                    password: article_password
+                }
+            })
+        } else {
+            alert('잘못된 비밀번호를 입력하셨습니다')
+        }
+    }
+
+    function article_login_delete() {
+        if (confirm("정말 삭제하시겠습니까?")) {
+            axios.delete('/board/{{ record.seq }}')
+        }
+    }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.7.13/vue.js"></script>
+    <script>
+    var app = new Vue({
+        el: 'div#comments',
+        delimiters: ['${', '}'],
+        data: {
+            comments: []
+        },
+        methods: {
+            modify_comment(comment) {
+                if (comment.password == '') {
+                    alert('댓글의 비밀번호가 입력되어 있지 않습니다')
+                    return
+                }
+
+                fetch('/board/{{ record.seq }}/comments/' + comment.seq,
+                    {method: 'put', body: JSON.stringify(comment)})
+                    .then((response) => response.json())
+                    .then((data) => {
+                        comment.editable = false
+                    })
+            },
+            delete_comment(comment) {
+                var fetch_args = {method: 'delete'}
+
+                if (comment.user_id.length == 0) {
+                    var article_password = prompt("정말 삭제하시겠습니까?\n삭제하시려면 게시물의 비밀번호를 입력해주세요")
+                    if (article_password.trim().length > 0) {
+                        fetch_args['body'] = JOSN.stringify({password: article_password})
+                    } else {
+                        alert('잘못된 비밀번호를 입력하셨습니다')
+                    }
+                }
+
+                fetch('/board/{{ record.seq }}/comments/' + comment.seq, fetch_args)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        alert('댓글이 잘 삭제되었습니다')
+                    })
+            }
+        },
+        mounted() {
+            fetch('/board/{{ record.seq }}/comments')
+                .then((response) => response.json())
+                .then((data) => {
+                    this.comments = data['data']
+                })
+        }
+    })
+    </script>
+</div>
+{% endblock %}

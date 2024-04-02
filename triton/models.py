@@ -36,7 +36,12 @@ class BoardComments(Base):
     modify_date: Mapped[datetime] = mapped_column()
 
 
-class Member(Base):
+class Member(Base, UserMixin):
     id: Mapped[str] = mapped_column(db.String(20), primary_key=True)
     name: Mapped[str] = mapped_column(db.String(20))
     password: Mapped[str] = mapped_column(db.String(40))
+
+    @property
+    def is_authenticated(self):
+        return True
+

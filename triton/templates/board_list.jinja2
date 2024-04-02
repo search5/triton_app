@@ -1,0 +1,46 @@
+{% extends "base.jinja2" %}
+
+{% block container %}
+<div class="col-lg-12 px-0">
+    <table class="table board_list">
+    <thead>
+        <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>조회수</th>
+            <th>작성자</th>
+            <th>작성일</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in pagination %}
+        <tr>
+            <td>{{ record.seq }}</td>
+            <td><a href="/board/{{ record.seq }}">{{ record.subject }}</a></td>
+            <td>{{ record.hit }}</td>
+            <td>{{ record.writer_name }}</td>
+            <td>{{ record.modify_date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+
+    <nav>
+        <ul class="pagination">
+        {% for page in pagination.iter_pages() %}
+            {% if page %}
+                {% if page != pagination.page %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('triton_board.board_list', page=page, keyword=keyword) }}">{{ page }}</a></li>
+                {% else %}
+                    <li class="page-item active"><a class="page-link" href="{{ url_for('triton_board.board_list', page=page, keyword=keyword) }}">{{ page }}</a></li>
+                {% endif %}
+            {% else %}
+                <li class="page-item"><a class="page-link"><span>…</span></a></li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+    </nav>
+
+    <a href="/board/write" class="btn btn-primary add">게시물 추가</a>
+</div>
+{% endblock %}

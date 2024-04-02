@@ -1,0 +1,24 @@
+{% extends "base.jinja2" %}
+
+{% block container %}
+<div class="col-lg-12 px-0">
+    <form method="post">
+        <div class="mb-3">
+            <label for="inputSubject" class="form-label">제목</label>
+            <input type="text" class="form-control" id="inputSubject" name="subject" placeholder="글 제목을 입력하세요">
+        </div>
+        <div class="mb-3">
+            <label for="inputContent" class="form-label">내용</label>
+            <textarea class="form-control" id="inputContent" name="content" rows="10"></textarea>
+        </div>
+        {% if current_user.is_anonymous %}
+        <div class="mb-3">
+            <label for="inputPassword" class="form-label">비밀번호 확인</label>
+            <input type="password" class="form-control" id="inputPassword" name="password" placeholder="비밀번호를 입력하세요">
+        </div>
+        {% endif %}
+
+        <button class="btn save btn-primary">저장</button>
+    </form>
+</div>
+{% endblock %}
