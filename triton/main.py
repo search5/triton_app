@@ -24,3 +24,12 @@ def dummy_data_board():
         db.session.add(record)
 
     db.session.commit()
+
+
+@app.cli.command("init-user")
+def init_user():
+    """Init User"""
+    from triton.models import Member
+
+    db.session.add(Member(id='admin', name='admin', password='1234'))
+    db.session.commit()
