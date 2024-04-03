@@ -1,6 +1,6 @@
-def test_guest_comment_list(client):
+def test_guest_comment_list(client, write_article):
     """게시물 댓글 목록 확인"""
-    req_http = client.get('/board/107/comments')
+    req_http = client.get(f'/board/{write_article["article_id"]}/comments')
 
     # HTTP 응답 상태 확인
     assert req_http.status == '200 OK', 'URL이 구현되지 않았습니다'

@@ -19,7 +19,7 @@ def create_app(config_filename):
 
     @login_manager.user_loader
     def load_user(user_id):
-        return db.session.execute(db.select(Member).filter(Member.id == user_id)).scalar_one()
+        return db.session.execute(db.select(Member).where(Member.id == user_id)).scalar_one()
 
     app.register_blueprint(board_app, url_prefix="/board")
 

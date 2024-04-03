@@ -1,13 +1,13 @@
 from bs4 import BeautifulSoup
 
 
-def test_board_view(client):
+def test_board_view(client, write_article):
     """게시물 상세 조회 시 모든 정보가 정상적으로 보이는지 확인한다
     점검 대상 정보: 게시물 제목, 게시물 작성자명, 게시물 작성일, 게시물 내용, 게시물 조회 수
         - 게시물 수정 버튼
         - 게시물 삭제 버튼
     """
-    req_http = client.get('/board/107')
+    req_http = client.get(f'/board/{write_article["article_id"]}')
 
     # HTTP 응답 상태 확인
     assert req_http.status == '200 OK', 'URL이 구현되지 않았습니다'
@@ -35,7 +35,7 @@ def test_board_view(client):
     # 게시물 조회 수
     article_hit = response_parser.select_one("td.hit")
     assert article_hit.text != '', '게시물 조회 수가 없습니다'
-    assert article_hit.text.isdigit() == True, '게시물 조회 수는 숫자여야 합니다'
+    assert article_hit.text.isdigit(), '게시물 조회 수는 숫자여야 합니다'
     
     is_modify_button = response_parser.select('.btn.modify')
     is_delete_button = response_parser.select('.btn.delete')
@@ -43,7 +43,7 @@ def test_board_view(client):
     # 버튼 표시 및 게시물 수정 링크 확인
     assert len(is_modify_button) == 1, '게시물 수정 버튼이 없습니다'
     assert len(is_delete_button) == 1, '게시물 삭제 버튼이 없습니다'
-    assert is_modify_button[0]['href'] == '/board/107/modify', '게시물 수정 링크가 올바르지 않습니다'
+    assert is_modify_button[0]['href'] == f'/board/{write_article["article_id"]}/modify', '게시물 수정 링크가 올바르지 않습니다'
 
 
 def test_not_found_view(client):

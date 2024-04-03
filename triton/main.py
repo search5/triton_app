@@ -14,20 +14,13 @@ def dummy_data_board():
 
     for i in range(100):
         record = Board()
-        record.subject = f'jiho {i}'
-        record.content = f'jiho content {i}'
+        record.subject = f'Test Subject {i}'
+        record.content = f'Test content {i}'
         record.hit = 0
-        record.writer_name = 'jiho'
+        record.writer_name = 'gdhong'
         record.password = '1234'
         record.modify_date = func.now()
 
         db.session.add(record)
 
     db.session.commit()
-
-
-@app.cli.command("init-db")
-def init_db():
-    """Initialize Database"""
-    import triton.models
-    db.create_all()
