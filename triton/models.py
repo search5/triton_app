@@ -16,9 +16,7 @@ class Base(DeclarativeBase):
 db = SQLAlchemy(model_class=Base)
 
 
-class Board(Base):
-    __tablename__ = "board"
-
+class Board(db.Model):
     seq: Mapped[int] = mapped_column(db.Identity(start=1, always=True), primary_key=True)
     subject: Mapped[str] = mapped_column(db.String(100))
     content: Mapped[Optional[str]] = mapped_column(db.Text)
@@ -29,9 +27,7 @@ class Board(Base):
     modify_date: Mapped[datetime] = mapped_column()
 
 
-class BoardComments(Base):
-    __tablename__ = "board_comments"
-
+class BoardComments(db.Model):
     seq: Mapped[int] = mapped_column(db.Identity(start=1, always=True), primary_key=True)
     board_seq: Mapped[int] = mapped_column(db.ForeignKey('board.seq'), primary_key=True)
     content: Mapped[Optional[str]] = mapped_column(db.Text)
@@ -41,9 +37,7 @@ class BoardComments(Base):
     modify_date: Mapped[datetime] = mapped_column()
 
 
-class Member(Base, UserMixin):
-    __tablename__ = "member"
-
+class Member(db.Model, UserMixin):
     id: Mapped[str] = mapped_column(db.String(20), primary_key=True)
     name: Mapped[str] = mapped_column(db.String(20))
     password: Mapped[str] = mapped_column(db.String(40))
