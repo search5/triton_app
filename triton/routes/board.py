@@ -378,29 +378,34 @@ def comment_delete(number, comment_seq):
             'required': True
         }
     }
+
+    # 댓글 삭제
+    comment_obj = db.session.execute(
+        db.select(BoardComments).where(BoardComments.seq == comment_seq)
+    ).scalar_one()
+
+    success_result = False
     
     # 로그인한 사용자는 작성자명과 비밀번호의 유효성을 검증하지 않도록 합니다.
-    if not current_user.is_anonymous:
+    if current_user.is_anonymous:
         valid_schema = filter(lambda x: x[0] not in ('password'),
                               valid_schema.items())
 
-    v = Validator(valid_schema)
+        v = Validator(valid_schema)
 
-    resp_json = request.get_json()
+        resp_json = request.get_json()
 
-    success_result = v.validate(resp_json)
-
-    errors = v.errors
+        validate_result = v.validate(resp_json)
+        if validate_result:
+            if comment_obj.password == resp_json.get('password'):
+                success_result = True
+    else:
+        # 로그인 상태
+        if comment_obj.user_id == current_user.get_id():
+            success_result = True
 
     if success_result:
-        # 댓글 삭제
-        comment_obj = db.session.execute(
-            db.select(BoardComments).where(BoardComments.seq == comment_seq)
-        ).scalar_one()
-
-        if ((comment_obj.password == resp_json.get('password'))
-                or (comment_obj.user_id == current_user.get_id())):
-            db.session.delete(comment_obj)
-            db.session.commit()
+        db.session.delete(comment_obj)
+        db.session.commit()
     
     return jsonify(success=True)

@@ -25,8 +25,8 @@ def test_guest_comment_delete(client, write_comment):
     comment_id = write_comment.get("comment_id")
 
     req_http = client.delete(
-        f'/board/{article_id}/commnents/{comment_id}',
-        data={
+        f'/board/{article_id}/comments/{comment_id}',
+        json={
             "password": "1234"
         }
     )
