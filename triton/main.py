@@ -33,3 +33,10 @@ def init_user():
 
     db.session.add(Member(id='admin', name='admin', password='1234'))
     db.session.commit()
+
+
+@app.cli.command("init-db")
+def init_db():
+    """Initialize Database"""
+    with app.app_context():
+        db.create_all()
